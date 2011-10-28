@@ -1,0 +1,17 @@
+Robotathon Demo Project Description
+
+The Root2Demo project is a demonstration program for the robotathon 2011 competition on the "root2" microcontroller board. It contains several sets of functions:
+
+1. Initialization functions
+Used to initialize the board so that it can be used, communicate with a computer via USB connection, and access supported modules including motors, encoders, IR distance sensors (as well as any other ADC module), servos, and line sensors. These functions are not expected to be read or understood by a robotathon participant.
+
+2. "High-level" functions
+Send and receive data to supported modules. Also amongst these are functions to receive text from a command-line on a computer via USB, toggle the on-board LED, and pause the program for a specified amount of time. These functions are expected to be used and examined by a robotathon participant.
+
+3. "Low-level" functions
+Used by the high-level functions and are specific to the microcontroller and library being used. These are not expected to be read or understood by a robotathon participant.
+
+4. Demonstration functions
+Called from within the main loop and demonstrates how to use the high-level functions. 
+
+When the microcontroller is plugged into a computer with a USB cord and set to run mode, the computer can communicate with the microcontroller to run the demo code from a command-line tool like PuTTY. This way, the demo functions may demonstrate use of the board and any modules attached to it while displaying useful information (example: line sensor data) to the command line via a USB connection to the computer.
