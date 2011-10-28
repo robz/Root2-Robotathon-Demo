@@ -1,6 +1,6 @@
 Robotathon Demo Project Description
 
-The Root2Demo project is a demonstration program for the robotathon 2011 competition on the "root2" microcontroller board. It contains several sets of functions:
+The Root2-Robotathon-Demo project is a demonstration program for the robotathon 2011 competition on the "root2" microcontroller board. It contains several sets of functions:
 
 1. Initialization functions
 Used to initialize the board so that it can be used, communicate with a computer via USB connection, and access supported modules including motors, encoders, IR distance sensors (as well as any other ADC module), servos, and line sensors. These functions are not expected to be read or understood by a robotathon participant.

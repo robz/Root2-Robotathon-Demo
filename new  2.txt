@@ -1,1 +1,0 @@
-motor 0 & 1 to 1 & 2; continuous mode for encoders, IR, line sensor; fixed linesenor read bug (use 8 instead of I2C_BUFSIZE); added "initEncoders" to "root2Init" (was in encoderDemo); motor init polarity switch; encoder init polarity switch; added "stop motors" case to motor demo;
