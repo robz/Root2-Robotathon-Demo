@@ -28,6 +28,10 @@ const int enc_Machine[4][4] = { { 0 , 1 , -1 , 0 } , {-1 , 0 , 0 , 1 } , { 1 , 0
 volatile static encoder_count_t enc_0, enc_1;
 volatile static encoder_state_t enc_state[2];
 
+int motor1_reversed = 0, motor2_reversed = 0, encoder1_reversed = 0, 
+	encoder2_reversed = 0;
+int duties[] = {50, 50};
+
 char prompt[] = ">> ";
 
 void root2Init();
@@ -54,20 +58,19 @@ Begin: main
 */
 /**************************************************************************/
 
-
 int main()
 {
 	// Define menu string
 	char intro[] = "\n\r** Welcome to the Robotathon Root2 Demo! **\n\r\
 Choose an option:\n\r1 - Motor Demo\n\r2 - Servo Demo\n\r\
 3 - IR Demo\n\r4 - Line Sensor Demo\n\r5 - Encoder Demo\n\r";
-	
+
 	// Initialize system
 	root2Init();
-	
+
 	// Wait the someone to connect and press a key
 	waitForKey();
-	
+
 	// Loop forever waiting for someone to request a demo
 	while (1) {
 		printf("%s", intro);
@@ -85,7 +88,7 @@ Choose an option:\n\r1 - Motor Demo\n\r2 - Servo Demo\n\r\
 		}
 		toggleLED();
     }
-	
+
 	return 0;
 }
 
@@ -106,7 +109,6 @@ Begin: Low-level functions and definitions
 /* Note: will need to add support for directions (software reverse) later. Same for motor code.*/
 /* Move typedefs into header when sorting code 
  * Also recommending same typedef style for all other aspects of this project */
-
 
 void encoderDrive( encoder_t enc )
 {
@@ -159,6 +161,17 @@ int pollUSBCDC(char* usbcdcBuf, int len) {
 	return numBytesRead;
 }
 
+// Check once to see if 1 or more keys have been pressed, 
+//	fill the buffer & return # of chars collected
+int checkUSBCDC(char* usbcdcBuf, int len) {
+	int  numBytesToRead, numBytesRead, numAvailByte = 0;
+	CDC_OutBufAvailChar (&numAvailByte);
+	numBytesToRead = numAvailByte > len ? len : numAvailByte; 
+	numBytesRead = CDC_RdOutBuf (usbcdcBuf, &numBytesToRead);
+	//printf("[%d]", numBytesRead);
+	return numBytesRead;
+}
+
 /**************************************************************************/
 /*
 End: Special low-level and driver functions
@@ -171,6 +184,8 @@ void initLED() {
 	gpioSetDir(2, 10, 1);
 }
 
+// TODO: switch servo '2' for servo '3' 
+// (they are sortof switch in order on the board)
 void initServos() {
   /* Enable the clock for CT16B1 */
   SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_CT32B1);
@@ -217,7 +232,10 @@ void initIR(void) {
 	adcInit();
 }
 
-void initMotors(void) {
+// backwards1 to 1 to reverse motor one's direction
+// backwards2 to 1 to reverse motor two's direction
+// (software fix for the case that the wires were plugged in backwards)
+void initMotors(int backwards1, int backwards2) {
 	/* Enable the clock for CT32B0 */
   SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_CT32B0);
 
@@ -247,40 +265,49 @@ void initMotors(void) {
 
   /* Enable Timer1 */
   TMR_TMR32B0TCR = TMR_TMR32B0TCR_COUNTERENABLE_ENABLED;
+  
+  motor1_reversed = backwards1;
+  motor2_reversed = backwards2;
 }
 
-void initEncoders(void) {
+// backwards1 to 1 to reverse motor one's direction
+// backwards2 to 1 to reverse motor two's direction
+// (software fix for the case that the wires were plugged in backwards)
+void initEncoders(int backwards1, int backwards2) {
 	/*written as psedocode until actual values can be set*/
 	/* Configure Encoder Pins 3 block (4 pins) as input */
-	
+
 	enc_state[0] = s_0 ;
 	enc_state[1] = s_0 ;
 	enc_0 = 0;
 	enc_1 = 0;
-	
+
 	//gpioInit();	// Already initialized in cpuInit() (yeah, strange.)
 	gpioSetDir(3, 0, gpioDirection_Input);
 	gpioSetDir(3, 1, gpioDirection_Input);
 	gpioSetDir(3, 2, gpioDirection_Input);
 	gpioSetDir(3, 3, gpioDirection_Input);
-	
+
 	// Disable Internal pullups
 	gpioSetPullup(&IOCON_PIO3_0, gpioPullupMode_Inactive);
 	gpioSetPullup(&IOCON_PIO3_1, gpioPullupMode_Inactive);
 	gpioSetPullup(&IOCON_PIO3_2, gpioPullupMode_Inactive);
 	gpioSetPullup(&IOCON_PIO3_3, gpioPullupMode_Inactive);
-	
+
 	// Enable interupts on A pins
 	gpioSetInterrupt(3, 0, gpioInterruptSense_Edge, gpioInterruptEdge_Double, gpioInterruptEvent_ActiveHigh);
 	gpioSetInterrupt(3, 1, gpioInterruptSense_Edge, gpioInterruptEdge_Double, gpioInterruptEvent_ActiveHigh);
 	gpioSetInterrupt(3, 2, gpioInterruptSense_Edge, gpioInterruptEdge_Double, gpioInterruptEvent_ActiveHigh);
 	gpioSetInterrupt(3, 3, gpioInterruptSense_Edge, gpioInterruptEdge_Double, gpioInterruptEvent_ActiveHigh);
-	
+
 	// Enable Interrupts
 	gpioIntEnable(3, 0);
 	gpioIntEnable(3, 1);	
 	gpioIntEnable(3, 2);
 	gpioIntEnable(3, 3);
+	
+	encoder1_reversed = backwards1;
+	encoder2_reversed = backwards2;
 }
 
 /**************************************************************************/
@@ -294,13 +321,14 @@ Begin: Useful higher-level functions
 void root2Init() {
 	// Configure cpu, usbcdc, and mandatory peripherals
 	systemInit();
-	
+
 	// Configure on-board LED and servo, linesensor, IR drivers, etc.
 	initLED();
 	initServos();
 	initLineSensor();
 	initIR();
-	initMotors();
+	initMotors(0,0);
+	initEncoders(1,1);
 }
 
 // Pause program for [ms] milliseconds
@@ -353,19 +381,36 @@ char getKey() {
 	return str[0];
 }
 
+// Check to see if a key has been pressend 
+// if a key hasn't been pressed, returns the null character. 
+// Otherwise it will return the first key in the buffer. 
+// (it will NOT wait for a key to be pressed before returning)
+char checkKey() {
+	char str[10];
+	int len = checkUSBCDC(str, 10);
+	if (len == 0)
+		return 0;
+	else
+		return str[0];
+}
+
 // Sets a particular servo to a position based on [degree] 
 void moveServo(int servo, int degree) {
 	degree = degree%180;
 	if (degree < 0)
 		degree = degree+180;
 	int period = degree+1760;
-	
+
 	if (servo == 1) 
 		TMR_TMR32B1MR1 = TIMER32_CCLK_10US * period;
 	else if (servo == 2) 
 		TMR_TMR32B1MR0 = TIMER32_CCLK_10US * period;
 	else if (servo == 3) 
 		TMR_TMR32B1MR2 = TIMER32_CCLK_10US * period; 
+	else {
+		printf("wrong servo%d", servo);
+		while(1);
+	}
 }
 
 // Grabs line sensor data using i2c and dumps into LineSensor array. 
@@ -374,17 +419,17 @@ void moveServo(int servo, int degree) {
 int readLineSensor(int LineSensor[8]) {
 	int i;
 	char cmd;
-	
+
 	gpioSetValue(2, 10, 1);
-	for(i=0; i<I2C_BUFSIZE; i++) //clear i2c buffers
+	for(i=0; i<8; i++) //clear i2c buffers
 	{
 		I2CMasterBuffer[i] = 0;
 		I2CSlaveBuffer[i] = 0;
 	}
-	
+
 	cmd = 0x84; //1 CH# 01 XX for request conversion. e.g 1 000 01 00 is for channel 2
-	
-	for(i=0; i<I2C_BUFSIZE; i++)
+
+	for(i=0; i<8; i++)
 	{
 		////printf("Reading channel %d\n\r", i);
 		I2CWriteLength = 2;
@@ -400,31 +445,47 @@ int readLineSensor(int LineSensor[8]) {
 		}
 		LineSensor[i] = I2CSlaveBuffer[0] > 100 ? 999 : 0; //sadly after each transaction the RdIndex is returned to 0, could change i2c driver...
 	} 
-	
+
 	return 1;
 }
 
 // Gets the value at the ADC requested channel
 int getIRValue(int channel) {
 	int indexes[] = {0, 1, 6, 7};
+	
+	if (channel < 0 || channel > 4) {
+		printf("wrong IR channel%d", channel);
+		while(1);
+	}
+	
 	return (int) adcRead(indexes[channel]);
 }
 
 // Set motor 0 or 1 to a duty cycle from 0-100 (0 us to 50 us)
 void setMotorDuty(int motor, int power) {
 	if (motor == 0) {
+		if (motor1_reversed) power = 100-power;
 		TMR_TMR32B0MR0 = TIMER32_CCLK_1US / 2 * power;
 	} else if (motor == 1) {
+		if (motor2_reversed) power = 100-power;
 		TMR_TMR32B0MR1 = TIMER32_CCLK_1US / 2 * power;
+	} else {
+		printf("wrong motor #%d", motor);
+		while(1);
 	}
 }
 
 // Get encoder value corresponding to given encoder
 signed long getEncoderValue(encoder_t enc) {	
-	if (enc == ENCODER_0)
+	if (enc == ENCODER_0) {
+		if (encoder1_reversed) return -enc_0;
 		return enc_0;
-	else 
+	} else if (enc == ENCODER_1) {
+		if (encoder2_reversed) return -enc_1;
 		return enc_1;
+	}
+	printf("wrong encorder #%d", enc);
+	while(1);
 }
 
 /**************************************************************************/
@@ -435,14 +496,13 @@ Begin: Demo functions
 /**************************************************************************/
 
 void servoDemo(void) {
-	char intro[] = "\n\rWelcome to the servo demo!\n\r\
-Choose an option:\n\r# - change servo (default is 1)\n\r\
-a - left\n\rd - right\n\rq - quit\n\r";
 	int degrees[] = {0, 0, 0};
 	int servoNum = 1, quit = 0;
-	
-	printf("%s", intro);
-	
+
+	printf("\n\rWelcome to the servo demo!\n\r\
+Choose an option:\n\r# - change servo (default is 1)\n\r\
+a - left\n\rd - right\n\rq - quit\n\r");
+
 	while (quit != 1) {
 		printf("Servo %d %s", servoNum, prompt);
 		char choice = getKey();
@@ -463,16 +523,15 @@ a - left\n\rd - right\n\rq - quit\n\r";
 }
 
 void motorDemo() {
-	char intro[] = "\n\rWelcome to the motor demo!\n\r\
-Choose an option:\n\r# - change motor (default is 0)\n\r\
-a - increase duty cycle\n\rd - decrease duty cycle\n\rq - quit\n\r";
-	int duties[] = {50, 50};
 	int motorNum = 0, quit = 0;
-	
-	printf("%s", intro);
-	
+
+	printf("\n\rWelcome to the motor demo!\n\r\
+Choose an option:\n\rspace - stops motors\n\r\
+# - change motor (default is 1)\n\ra - increase duty cycle\n\r\
+d - decrease duty cycle\n\rq - quit\n\r");
+
 	while (quit != 1) {
-		printf("Motor %d %s", motorNum, prompt);
+		printf("Motor %d %s", motorNum+1, prompt);
 		char choice = getKey();
 		printf("%c\n\r", choice);
 		switch(choice) {
@@ -486,8 +545,13 @@ a - increase duty cycle\n\rd - decrease duty cycle\n\rq - quit\n\r";
 				if (duties[motorNum] < 0) duties[motorNum] = 0;
 				setMotorDuty(motorNum, duties[motorNum]); 
 				break;
-			case '0' : motorNum = 0; break;
-			case '1' : motorNum = 1; break;
+			case '1' : motorNum = 0; break;
+			case '2' : motorNum = 1; break;
+			case ' ' : 
+				duties[0] = duties[1] = 50;
+				setMotorDuty(0, duties[0]); 
+				setMotorDuty(1, duties[1]); 
+				break;
 			case 'q' : quit = 1; break;
 			default : printf("invalid choice!\n\r"); 
 			break; 
@@ -498,80 +562,80 @@ a - increase duty cycle\n\rd - decrease duty cycle\n\rq - quit\n\r";
 }
 
 void IRDemo() {
-	char intro[] = "\n\rWelcome to the IR demo!\n\r\
-Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
-	int count = 0, quit = 0;
+	int count = 0;
+
+	printf("\n\r** Welcome to the IR demo! **\n\r\
+Choose an option:\n\rspace - start reading\n\rq - quit\n\r");
 	
-	printf("%s", intro);
-	
-	while (quit != 1) {
-		char choice = getKey();
-		switch(choice) {
-			case ' ' : 
-				printf("%03d : %04d  %04d  %04d  %04d\n\r", count, 
-					getIRValue(0), getIRValue(1), 
-					getIRValue(2), getIRValue(3)); 
-				count++;
-				break;
-			case 'q' : quit = 1; 
-		}
+	char choice = checkKey();
+	while (choice != 'q') 
+	{
+		printf("%03d : %04d  %04d  %04d  %04d\r", count, 
+			getIRValue(0), getIRValue(1), getIRValue(2), getIRValue(3)); 
+			
+		count++;
 		toggleLED();
+		pause(100);
+		choice = checkKey();
     }
+	
+	printf("\n");
 }
 
 void lineSensorDemo() {
-	char intro[] = "\n\rWelcome to the line sensor demo!\n\r\
-Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
 	int lineSensorArr[8];
-	int count = 0, quit = 0;
+	int count = 0;
+
+	printf("\n\r** Welcome to the line sensor demo! **\n\r\
+Choose an option:\n\rspace - start reading\n\rq - quit\n\r");
 	
-	printf("%s", intro);
-	
-	while (quit != 1) {
-		getKey();
-		switch(' ') {
-			case ' ' : 
-				readLineSensor(lineSensorArr); 
-				printf("%03d : %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d\r\n", 
-					count, lineSensorArr[0], lineSensorArr[4], 
-					lineSensorArr[1], lineSensorArr[5], lineSensorArr[2], 
-					lineSensorArr[6], lineSensorArr[3], lineSensorArr[7]);
-				count++;
-				break;
-			case 'q' : quit = 1; 
-		}
+	waitForKey();
+
+	char choice = checkKey();
+	while (choice != 'q') 
+	{
+		readLineSensor(lineSensorArr); 
+		printf("%03d : %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d\r", 
+			count, lineSensorArr[0], lineSensorArr[4], 
+			lineSensorArr[1], lineSensorArr[5], lineSensorArr[2], 
+			lineSensorArr[6], lineSensorArr[3], lineSensorArr[7]);
+			
+		count++;
 		toggleLED();
 		pause(100);
+		choice = checkKey();
     }
+	
+	printf("\n");
 }
 
 void encoderDemo() {
-	char intro[] = "\n\rWelcome to the encoder demo!\n\r\
-Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
-	int enc1_val, enc2_val;
-	int count = 0, quit = 0;
+	int count = 0;
+
+	printf("\n\r** Welcome to the encoder demo! **\n\r\
+Choose an option:\n\rspace - start reading\n\rq - quit\n\r");
 	
-	printf("%s", intro);
-	initEncoders();
+	waitForKey();
 	
-	while (quit != 1) {
-		char choice = getKey();
-		switch(choice) {
-			case ' ' : 
-				enc1_val = getEncoderValue(ENCODER_0);
-				enc2_val = getEncoderValue(ENCODER_1);
-				printf("%03d : %03d  %03d\r\n", 
-					count, enc1_val, enc2_val);
-				count++;
-				break;
-			case 'q' : quit = 1; 
-		}
+	char choice = checkKey();
+	while (choice != 'q') 
+	{
+		int enc1_val = getEncoderValue(ENCODER_0),
+			enc2_val = getEncoderValue(ENCODER_1);
+		printf("%03d : %03d  %03d\r", 
+			count, enc1_val, enc2_val);
+			
+		count++;
 		toggleLED();
+		pause(100);
+		choice = checkKey();
     }
+	
+	printf("\n");
 }
 
 /**************************************************************************/
 /*
-End: Useful functions
+End: Demo functions
 */
 /**************************************************************************/
