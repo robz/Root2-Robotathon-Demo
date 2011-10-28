@@ -1,54 +1,6 @@
 /**************************************************************************/
 /*! 
     @file     main.c
-    @author   K. Townsend (microBuilder.eu)
-
-    @section LICENSE
-
-    Software License Agreement (BSD License)
-
-    Copyright (c) 2011, microBuilder SARL
-    All rights reserved.
-
-    Redistribution and use in source and binary forms, with or without
-    modification, are permitted provided that the following conditions are met:
-    1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
-    2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
-    3. Neither the name of the copyright holders nor the
-    names of its contributors may be used to endorse or promote products
-    derived from this software without specific prior written permission.
-
-    THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS ''AS IS'' AND ANY
-    EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED
-    WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE
-    DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER BE LIABLE FOR ANY
-    DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES
-    (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES;
-    LOSS OF USE, DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND
-    ON ANY THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
-    (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF THIS
-    SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-*/
-/**************************************************************************/
-/*#include <stdlib.h>
-#include <stdio.h>
-#include <string.h>
-
-#define CFG_USBCDC
-
-#include "projectconfig.h"
-#include "sysinit.h"
-
-#include "core/gpio/gpio.h"
-#include "core/systick/systick.h"
-*/
-
-/**************************************************************************/
-/*! 
-    @file     main.c
     @author   Robby Nevels, Cruz Monrreal, Stephen Hall, Frank Weng, Razik Ahmed
 */
 /**************************************************************************/
@@ -203,7 +155,7 @@ int pollUSBCDC(char* usbcdcBuf, int len) {
 	}
 	numBytesToRead = numAvailByte > len ? len : numAvailByte; 
 	numBytesRead = CDC_RdOutBuf (usbcdcBuf, &numBytesToRead);
-	printf("[%d]", numBytesRead);
+	//printf("[%d]", numBytesRead);
 	return numBytesRead;
 }
 
@@ -219,8 +171,7 @@ void initLED() {
 	gpioSetDir(2, 10, 1);
 }
 
-void initServos()
-{
+void initServos() {
   /* Enable the clock for CT16B1 */
   SCB_SYSAHBCLKCTRL |= (SCB_SYSAHBCLKCTRL_CT32B1);
 
@@ -483,11 +434,10 @@ Begin: Demo functions
 */
 /**************************************************************************/
 
-
 void servoDemo(void) {
 	char intro[] = "\n\rWelcome to the servo demo!\n\r\
-		Choose an option:\n\r# - change servo (default is 1)\n\r\
-		a - left\n\rd - right\n\rq - quit\n\r";
+Choose an option:\n\r# - change servo (default is 1)\n\r\
+a - left\n\rd - right\n\rq - quit\n\r";
 	int degrees[] = {0, 0, 0};
 	int servoNum = 1, quit = 0;
 	
@@ -514,8 +464,8 @@ void servoDemo(void) {
 
 void motorDemo() {
 	char intro[] = "\n\rWelcome to the motor demo!\n\r\
-		Choose an option:\n\r# - change motor (default is 0)\n\r\
-		a - increase duty cycle\n\rd - decrease duty cycle\n\rq - quit\n\r";
+Choose an option:\n\r# - change motor (default is 0)\n\r\
+a - increase duty cycle\n\rd - decrease duty cycle\n\rq - quit\n\r";
 	int duties[] = {50, 50};
 	int motorNum = 0, quit = 0;
 	
@@ -549,7 +499,7 @@ void motorDemo() {
 
 void IRDemo() {
 	char intro[] = "\n\rWelcome to the IR demo!\n\r\
-		Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
+Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
 	int count = 0, quit = 0;
 	
 	printf("%s", intro);
@@ -571,14 +521,14 @@ void IRDemo() {
 
 void lineSensorDemo() {
 	char intro[] = "\n\rWelcome to the line sensor demo!\n\r\
-		Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
+Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
 	int lineSensorArr[8];
 	int count = 0, quit = 0;
 	
 	printf("%s", intro);
 	
 	while (quit != 1) {
-		//char choice = getKey();
+		getKey();
 		switch(' ') {
 			case ' ' : 
 				readLineSensor(lineSensorArr); 
@@ -597,7 +547,7 @@ void lineSensorDemo() {
 
 void encoderDemo() {
 	char intro[] = "\n\rWelcome to the encoder demo!\n\r\
-		Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
+Choose an option:\n\rspace - get reading\n\rq - quit\n\r";
 	int enc1_val, enc2_val;
 	int count = 0, quit = 0;
 	
@@ -625,44 +575,3 @@ void encoderDemo() {
 End: Useful functions
 */
 /**************************************************************************/
-
-
-
-
-
-
-
-/**************************************************************************/
-/*! 
-    Main program entry point.  After reset, normal code execution will
-    begin here.
-*/
-/**************************************************************************/
-/*int main(void)
-{
-  // Configure cpu and mandatory peripherals
-  systemInit();
-
-  uint32_t currentSecond, lastSecond;
-  currentSecond = lastSecond = 0;
-
-  while (1)
-  {
-    // Toggle LED once per second ... rollover = 136 years :)
-    currentSecond = systickGetSecondsActive();
-    if (currentSecond != lastSecond)
-    {
-      lastSecond = currentSecond;
-      if (gpioGetValue(CFG_LED_PORT, CFG_LED_PIN) == CFG_LED_OFF)
-      {
-        gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_ON); 
-      }
-      else
-      {
-        gpioSetValue (CFG_LED_PORT, CFG_LED_PIN, CFG_LED_OFF); 
-      }
-    }
-  }
-
-  return 0;
-}*/
