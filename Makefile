@@ -20,7 +20,7 @@ OBJS = main.o
 ##########################################################################
 
 VPATH += project
-OBJS += commands.o
+OBJS += commands.o 
 
 VPATH += project/commands
 OBJS += cmd_chibi_addr.o cmd_chibi_tx.o
@@ -34,73 +34,16 @@ OBJS += cmd_circle.o cmd_clear.o cmd_line.o cmd_orientation.o
 OBJS += cmd_pixel.o cmd_progress.o cmd_rectangle.o cmd_text.o
 OBJS += cmd_textw.o cmd_tsthreshhold.o cmd_tswait.o cmd_triangle.o
 
+VPATH += project/robot
+OBJS += linesensor.o encoder.o motor.o servo.o IR.o usb.o
+
 ##########################################################################
 # Optional driver files 
 ##########################################################################
 
-# Chibi Light-Weight Wireless Stack (AT86RF212)
-VPATH += drivers/chibi
-OBJS += chb.o chb_buf.o chb_drvr.o chb_eeprom.o chb_spi.o
-
 # 4K EEPROM
 VPATH += drivers/eeprom drivers/eeprom/mcp24aa
 OBJS += eeprom.o mcp24aa.o
-
-# LM75B temperature sensor
-VPATH += drivers/sensors/lm75b
-OBJS += lm75b.o
-
-# ISL12022M RTC
-VPATH += drivers/rtc/isl12022m
-OBJS += isl12022m.o
-
-# TFT LCD support
-VPATH += drivers/lcd/tft drivers/lcd/tft/hw drivers/lcd/tft/fonts
-VPATH += drivers/lcd/tft/dialogues
-OBJS += drawing.o touchscreen.o bmp.o alphanumeric.o
-OBJS += dejavusans9.o dejavusansbold9.o dejavusanscondensed9.o
-OBJS += dejavusansmono8.o dejavusansmonobold8.o
-OBJS += verdana9.o verdana14.o verdanabold14.o 
-
-# LCD Driver (Only one can be included at a time!)
-OBJS += ILI9328.o
-# OBJS += ILI9325.o
-# OBJS += ssd1331.o
-# OBJS += st7735.o
-# OBJS += st7783.o
-
-# Bitmap/Monochrome LCD support (ST7565, SSD1306, etc.)
-VPATH += drivers/lcd drivers/lcd/bitmap/st7565
-VPATH += drivers/lcd/bitmap/ssd1306
-OBJS += smallfonts.o st7565.o ssd1306.o
-
-# ChaN FatFS and SD card support
-VPATH += drivers/fatfs
-OBJS += ff.o mmc.o
-
-# Motors
-VPATH += drivers/motor/stepper
-OBJS += stepper.o
-
-# RSA Encryption/Descryption
-VPATH += drivers/rsa
-OBJS += rsa.o
-
-# DAC
-VPATH += drivers/dac/mcp4725
-OBJS += mcp4725.o
-
-# RFID/NFC
-VPATH += drivers/sensors/pn532
-OBJS += pn532.o 
-
-# TAOS Light Sensors
-VPATH += drivers/sensors/tcs3414 drivers/sensors/tsl2561
-OBJS += tcs3414.o tsl2561.o
-
-# SPI Flash
-VPATH += drivers/spiflash/w25q16bv
-OBJS += w25q16bv.o
 
 ##########################################################################
 # Library files 

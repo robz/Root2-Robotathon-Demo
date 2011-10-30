@@ -249,13 +249,13 @@
   </VirtualDirectory>
   <VirtualDirectory Name="root">
     <File Name="../../lpc134x.h"/>
-    <File Name="../../main.c"/>
     <File Name="../../Makefile"/>
     <File Name="../../projectconfig.h"/>
     <File Name="../../sysdefs.h"/>
     <File Name="../../sysinit.c"/>
     <File Name="../../sysinit.h"/>
     <File Name="../../ChangeLog.txt"/>
+    <File Name="../../main.c"/>
   </VirtualDirectory>
   <VirtualDirectory Name="project">
     <File Name="../../project/cmd_tbl.h"/>
@@ -289,6 +289,20 @@
         <File Name="../../project/commands/drawing/cmd_roundedcorner.c"/>
       </VirtualDirectory>
       <File Name="../../project/commands/cmd_uart.c"/>
+    </VirtualDirectory>
+    <VirtualDirectory Name="robot">
+      <File Name="../../project/robot/usb.h"/>
+      <File Name="../../project/robot/encoder.c"/>
+      <File Name="../../project/robot/encoder.h"/>
+      <File Name="../../project/robot/IR.c"/>
+      <File Name="../../project/robot/IR.h"/>
+      <File Name="../../project/robot/linesensor.c"/>
+      <File Name="../../project/robot/linesensor.h"/>
+      <File Name="../../project/robot/motor.c"/>
+      <File Name="../../project/robot/motor.h"/>
+      <File Name="../../project/robot/servo.c"/>
+      <File Name="../../project/robot/servo.h"/>
+      <File Name="../../project/robot/usb.c"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">
