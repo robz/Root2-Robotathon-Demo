@@ -34,8 +34,8 @@ OBJS += cmd_circle.o cmd_clear.o cmd_line.o cmd_orientation.o
 OBJS += cmd_pixel.o cmd_progress.o cmd_rectangle.o cmd_text.o
 OBJS += cmd_textw.o cmd_tsthreshhold.o cmd_tswait.o cmd_triangle.o
 
-VPATH += project/robot
-OBJS += linesensor.o encoder.o motor.o servo.o IR.o usb.o
+VPATH += project/robotathon_drivers
+OBJS += linesensor.o encoder.o motor.o servo.o IR.o usb.o root2.o
 
 ##########################################################################
 # Optional driver files 

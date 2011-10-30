@@ -290,19 +290,21 @@
       </VirtualDirectory>
       <File Name="../../project/commands/cmd_uart.c"/>
     </VirtualDirectory>
-    <VirtualDirectory Name="robot">
-      <File Name="../../project/robot/usb.h"/>
-      <File Name="../../project/robot/encoder.c"/>
-      <File Name="../../project/robot/encoder.h"/>
-      <File Name="../../project/robot/IR.c"/>
-      <File Name="../../project/robot/IR.h"/>
-      <File Name="../../project/robot/linesensor.c"/>
-      <File Name="../../project/robot/linesensor.h"/>
-      <File Name="../../project/robot/motor.c"/>
-      <File Name="../../project/robot/motor.h"/>
-      <File Name="../../project/robot/servo.c"/>
-      <File Name="../../project/robot/servo.h"/>
-      <File Name="../../project/robot/usb.c"/>
+    <VirtualDirectory Name="robotathon_drivers">
+      <File Name="../../project/robotathon_drivers/usb.h"/>
+      <File Name="../../project/robotathon_drivers/encoder.c"/>
+      <File Name="../../project/robotathon_drivers/encoder.h"/>
+      <File Name="../../project/robotathon_drivers/IR.c"/>
+      <File Name="../../project/robotathon_drivers/IR.h"/>
+      <File Name="../../project/robotathon_drivers/linesensor.c"/>
+      <File Name="../../project/robotathon_drivers/linesensor.h"/>
+      <File Name="../../project/robotathon_drivers/motor.c"/>
+      <File Name="../../project/robotathon_drivers/motor.h"/>
+      <File Name="../../project/robotathon_drivers/root2.c"/>
+      <File Name="../../project/robotathon_drivers/root2.h"/>
+      <File Name="../../project/robotathon_drivers/servo.c"/>
+      <File Name="../../project/robotathon_drivers/servo.h"/>
+      <File Name="../../project/robotathon_drivers/usb.c"/>
     </VirtualDirectory>
   </VirtualDirectory>
   <Settings Type="Dynamic Library">

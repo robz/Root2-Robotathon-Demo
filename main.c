@@ -5,33 +5,26 @@
 */
 /**************************************************************************/
 
-#include <stdlib.h>
 #include <stdio.h>
-#include <string.h>
 
 #define CFG_USBCDC
 
 #include "projectconfig.h"
 #include "sysinit.h"
 
-#include "project/robot/linesensor.h"
-#include "project/robot/encoder.h"
-#include "project/robot/IR.h"
-#include "project/robot/motor.h"
-#include "project/robot/servo.h"
-#include "project/robot/usb.h"
-
-void root2Init();
-void pause(int ms);
-void toggleLED();
+#include "project/robotathon_drivers/linesensor.h"
+#include "project/robotathon_drivers/encoder.h"
+#include "project/robotathon_drivers/IR.h"
+#include "project/robotathon_drivers/motor.h"
+#include "project/robotathon_drivers/servo.h"
+#include "project/robotathon_drivers/usb.h"
+#include "project/robotathon_drivers/root2.h"
 
 void motorDemo();
 void servoDemo();
 void IRDemo();
 void lineSensorDemo();
 void encoderDemo();
-
-char prompt[] = ">> ";
 
 /**************************************************************************/
 /*
@@ -54,8 +47,7 @@ Choose an option:\n\r1 - Motor Demo\n\r2 - Servo Demo\n\r\
 
 	// Loop forever waiting for someone to request a demo
 	while (1) {
-		printf("%s", intro);
-		printf("%s", prompt);
+		printf("%s>>", intro);
 		char choice = getKey();
 		printf("%c\n\r", choice);
 		switch(choice) {
@@ -88,7 +80,7 @@ Choose an option:\n\r# - change servo (default is 1)\n\r\
 a - left\n\rd - right\n\rq - quit\n\r");
 
 	while (quit != 1) {
-		printf("Servo %d %s", servoNum, prompt);
+		printf("Servo %d >>", servoNum);
 		char choice = getKey();
 		printf("%c\n\r", choice);
 		switch(choice) {
@@ -117,7 +109,7 @@ Choose an option:\n\rspace - stops motors\n\r\
 d - decrease duty cycle\n\rq - quit\n\r");
 
 	while (quit != 1) {
-		printf("Motor %d %s", motorNum+1, prompt);
+		printf("Motor %d >>", motorNum+1);
 		char choice = getKey();
 		printf("%c\n\r", choice);
 		switch(choice) {
@@ -186,7 +178,8 @@ Choose an option:\n\rspace - start reading\n\rq - quit\n\r");
 			count, lineSensorArr[0], lineSensorArr[1], 
 			lineSensorArr[2], lineSensorArr[3], lineSensorArr[4], 
 			lineSensorArr[5], lineSensorArr[6], lineSensorArr[7]);
-		/*
+		/* 
+		 * Display the line sensor data in this order for the old (purple) sensor:
 		printf("%03d : %03d  %03d  %03d  %03d  %03d  %03d  %03d  %03d\r", 
 			count, lineSensorArr[0], lineSensorArr[4], 
 			lineSensorArr[1], lineSensorArr[5], lineSensorArr[2], 
@@ -225,49 +218,3 @@ Choose an option:\n\rspace - start reading\n\rq - quit\n\r");
 	
 	printf("\n");
 }
-
-/**************************************************************************/
-/*
-End: Demo functions
-Being: Helper functions
-*/
-/**************************************************************************/
-
-// Set pin 2.10 (onboard LED) as an output
-void initLED() {
-	gpioSetDir(2, 10, 1);
-}
-
-// Call all of the necessary initialization functions
-void root2Init() {
-	// Configure cpu, usbcdc, and mandatory peripherals
-	systemInit();
-
-	// Configure on-board LED and servo, linesensor, IR drivers, etc.
-	initLED();
-	initServos();
-	initLineSensor();
-	initIR();
-	initMotors(0,0);
-	initEncoders(1,1);
-}
-
-// Pause program for [ms] milliseconds
-void pause(int ms) {
-	systickDelay(ms);
-}
-
-// Toggle pin 2.10 (onboard LED) 
-void toggleLED() {
-	int current_value = gpioGetValue(2, 10);
-	if (current_value == 0)
-		gpioSetValue(2, 10, 1);
-	else 
-		gpioSetValue(2, 10, 0);
-}
-
-/**************************************************************************/
-/*
-End: Helper functions
-*/
-/**************************************************************************/

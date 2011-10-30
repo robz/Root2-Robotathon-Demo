@@ -5,8 +5,8 @@
   <TabInfoArray Name="TabInfoArray">
     <TabInfo>
       <wxString Value="C:\Documents and Settings\RAS\git\Root2-Robotathon-Demo\main.c" Name="FileName"/>
-      <int Value="12" Name="FirstVisibleLine"/>
-      <int Value="19" Name="CurrentLine"/>
+      <int Value="161" Name="FirstVisibleLine"/>
+      <int Value="161" Name="CurrentLine"/>
       <wxArrayString Name="Bookmarks"/>
     </TabInfo>
   </TabInfoArray>

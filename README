@@ -1,9 +1,9 @@
 Robotathon Demo Project Description
 
-The Root2-Robotathon-Demo project is a demonstration program for the robotathon 2011 competition on the "root2" microcontroller board. It contains several sets of functions:
+The Root2-Robotathon-Demo project is a demonstration program for the robotathon 2011 competition on the "root2" microcontroller board. It contains several sets of functions. All functions except the demonstration functions are in "driver" files in the "/project/robotathon_driver/" directory, and are not expected to be modified by a robotathon participant. 
 
 1. Initialization functions
-Used to initialize the board so that it can be used, communicate with a computer via USB connection, and access supported modules including motors, encoders, IR distance sensors (as well as any other ADC module), servos, and line sensors. These functions are not expected to be read or understood by a robotathon participant.
+Used to initialize the board so that it can be used, communicate with a computer via USB connection, and access supported modules including motors, encoders, IR distance sensors (as well as any other ADC module), servos, and line sensors. These functions are not expected to be understood by a robotathon participant.
 
 2. "High-level" functions
 Send and receive data to supported modules. Also amongst these are functions to receive text from a command-line on a computer via USB, toggle the on-board LED, and pause the program for a specified amount of time. These functions are expected to be used and examined by a robotathon participant.
